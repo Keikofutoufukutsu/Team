@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>松川村少年野球愛好会 カレンダー</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .tab-active {
+            background-color: #1e40af;
+            color: white;
+        }
+        .event-practice {
+            background-color: #93c5fd;
+            border-left: 4px solid #2563eb;
+        }
+        .event-game {
+            background-color: #fecaca;
+            border-left: 4px solid #dc2626;
+        }
+        .event-recreation {
+            background-color: #a7f3d0;
+            border-left: 4px solid #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- ヘッダー部分 -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                <div class="w-full md:w-1/3">
+                    <div id="team-photo-container" class="relative h-48 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        <img id="team-photo" class="hidden max-h-full max-w-full" alt="チーム写真">
+                        <div id="photo-placeholder" class="text-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="mt-2">写真をアップロード</p>
+                        </div>
+                        <input type="file" id="photo-upload" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
+                    </div>
+                </div>
+                <div class="w-full md:w-2/3">
+                    <div class="flex items-center mb-4">
+                        <h1 id="team-name-display" class="text-3xl font-bold mr-3">松川村少年野球愛好会</h1>
+                        <button id="edit-name-btn" class="text-blue-600 hover:text-blue-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="team-name-edit" class="hidden mb-4">
+                        <input type="text" id="team-name-input" class="border rounded px-3 py-2 w-full md:w-2/3" value="松川村少年野球愛好会">
+                        <div class="mt-2">
+                            <button id="save-name-btn" class="bg-blue-600 text-white px-4 py-1 rounded mr-2 hover:bg-blue-700">保存</button>
+                            <button id="cancel-name-btn" class="bg-gray-300 px-4 py-1 rounded hover:bg-gray-400">キャンセル</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- タブボタン -->
+        <div class="flex mb-6 border-b">
+            <button class="tab-btn tab-active px-6 py-3 font-medium rounded-t-lg" data-tab="announcements">連絡事項</button>
+            <button class="tab-btn px-6 py-3 font-medium rounded-t-lg" data-tab="events">イベント</button>
+            <button class="tab-btn px-6 py-3 font-medium rounded-t-lg" data-tab="members">メンバー</button>
+        </div>
+
+        <!-- タブコンテンツ -->
+        <div class="tab-content" id="announcements-tab">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">連絡事項</h2>
+                <button id="new-announcement-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新規登録
+                </button>
+            </div>
+
+            <!-- 連絡事項フォーム -->
+            <div id="announcement-form" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h3 class="text-xl font-bold mb-4">連絡事項登録</h3>
+                <form id="announcement-create-form">
+                    <input type="hidden" id="announcement-id">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="announcement-title">タイトル</label>
+                        <input type="text" id="announcement-title" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="announcement-date">日付</label>
+                        <input type="date" id="announcement-date" class="border rounded px-3 py-2" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="announcement-author">投稿者</label>
+                        <select id="announcement-author" class="w-full border rounded px-3 py-2" required>
+                            <option value="">選択してください</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="announcement-content">内容</label>
+                        <textarea id="announcement-content" class="w-full border rounded px-3 py-2 h-32" required></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="announcement-file">添付ファイル</label>
+                        <input type="file" id="announcement-file" class="border rounded px-3 py-2 w-full">
+                        <div id="announcement-file-preview" class="mt-2 hidden">
+                            <p id="announcement-file-name" class="text-sm"></p>
+                            <button type="button" id="announcement-file-remove" class="text-red-600 text-sm">削除</button>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="announcement-cancel" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">キャンセル</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 連絡事項一覧 -->
+            <div id="announcements-list" class="space-y-4">
+                <!-- サンプルデータ -->
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="events-tab">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">イベント</h2>
+                <button id="new-event-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新規登録
+                </button>
+            </div>
+
+            <!-- イベントフォーム -->
+            <div id="event-form" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h3 class="text-xl font-bold mb-4">イベント登録</h3>
+                <form id="event-create-form">
+                    <input type="hidden" id="event-id">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="event-type">種類</label>
+                        <select id="event-type" class="w-full border rounded px-3 py-2" required>
+                            <option value="practice">練習</option>
+                            <option value="game">試合</option>
+                            <option value="recreation">レクリエーション</option>
+                        </select>
+                    </div>
+                    
+                    <div id="event-title-container" class="mb-4 hidden">
+                        <label class="block text-gray-700 mb-2" for="event-title">タイトル</label>
+                        <input type="text" id="event-title" class="w-full border rounded px-3 py-2">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="event-date">日付</label>
+                        <input type="date" id="event-date" class="border rounded px-3 py-2" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="event-time">時間</label>
+                        <input type="time" id="event-time" class="border rounded px-3 py-2" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="event-location">場所</label>
+                        <input type="text" id="event-location" class="w-full border rounded px-3 py-2" required>
+                    </div>
+                    
+                    <div id="event-items-container" class="mb-4 hidden">
+                        <label class="block text-gray-700 mb-2" for="event-items">持ち物</label>
+                        <textarea id="event-items" class="w-full border rounded px-3 py-2 h-20"></textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2" for="event-comment">コメント</label>
+                        <textarea id="event-comment" class="w-full border rounded px-3 py-2 h-20"></textarea>
+                    </div>
+                    
+                    <div id="event-file-container" class="mb-4 hidden">
+                        <label class="block text-gray-700 mb-2" for="event-file">添付ファイル</label>
+                        <input type="file" id="event-file" class="border rounded px-3 py-2 w-full">
+                        <div id="event-file-preview" class="mt-2 hidden">
+                            <p id="event-file-name" class="text-sm"></p>
+                            <button type="button" id="event-file-remove" class="text-red-600 text-sm">削除</button>
+                        </div>
+                    </div>
+                    
+                    <div id="practice-copy-container" class="mb-4">
+                        <label class="block text-gray-700 mb-2">練習を複製</label>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="practice-copy-btn" class="bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">複製する</button>
+                            <span class="text-sm text-gray-600">※練習内容を他の日にコピーできます</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="event-cancel" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">キャンセル</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 練習複製モーダル -->
+            <div id="practice-copy-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                    <h3 class="text-xl font-bold mb-4">練習を複製</h3>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 mb-2">複製する日付を選択</label>
+                        <div class="space-y-2" id="copy-dates-container">
+                            <div class="flex items-center">
+                                <input type="checkbox" class="copy-date-checkbox mr-2">
+                                <input type="date" class="copy-date border rounded px-3 py-1">
+                            </div>
+                        </div>
+                        <button type="button" id="add-copy-date" class="text-blue-600 mt-2 text-sm flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            日付を追加
+                        </button>
+                    </div>
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="copy-cancel" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">キャンセル</button>
+                        <button type="button" id="copy-confirm" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">複製する</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 出欠確認モーダル -->
+            <div id="attendance-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-lg p-6 w-full max-w-lg">
+                    <h3 class="text-xl font-bold mb-2" id="attendance-event-title">試合名</h3>
+                    <p class="text-gray-600 mb-4" id="attendance-event-date">日時: 2023年5月5日 9:00</p>
+                    
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <h4 class="font-bold">出欠確認</h4>
+                            <div class="text-sm">
+                                <span class="text-green-600 font-bold" id="attendance-count-yes">0</span> 参加 / 
+                                <span class="text-red-600 font-bold" id="attendance-count-no">0</span> 不参加 / 
+                                <span class="text-gray-600 font-bold" id="attendance-count-pending">0</span> 未回答
+                            </div>
+                        </div>
+                        <div class="border rounded-lg overflow-hidden">
+                            <table class="min-w-full">
+                                <thead>
+                                    <tr class="bg-gray-100">
+                                        <th class="py-2 px-4 text-left">名前</th>
+                                        <th class="py-2 px-4 text-center">出欠</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendance-list">
+                                    <!-- 出欠リストがここに入る -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <button type="button" id="attendance-close" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">閉じる</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- イベント一覧 -->
+            <div id="events-list" class="space-y-4">
+                <!-- サンプルデータ -->
+            </div>
+        </div>
+
+        <div class="tab-content hidden" id="members-tab">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold">メンバー</h2>
+                <button id="new-member-btn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新規登録
+                </button>
+            </div>
+
+            <!-- メンバー登録フォーム -->
+            <div id="member-form" class="bg-white rounded-lg shadow-md p-6 mb-6 hidden">
+                <h3 class="text-xl font-bold mb-4">メンバー登録</h3>
+                <form id="member-create-form">
+                    <input type="hidden" id="member-id">
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2">保護者情報</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 mb-1" for="parent1-name">保護者名1</label>
+                                <input type="text" id="parent1-name" class="w-full border rounded px-3 py-2" required>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 mb-1" for="parent2-name">保護者名2</label>
+                                <input type="text" id="parent2-name" class="w-full border rounded px-3 py-2">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-bold mb-2">子供情報</h4>
+                        <div id="children-container">
+                            <div class="child-entry border rounded-lg p-4 mb-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                                    <div>
+                                        <label class="block text-gray-700 mb-1">名前</label>
+                                        <input type="text" class="child-name w-full border rounded px-3 py-2">
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-1">ふりがな</label>
+                                        <input type="text" class="child-kana w-full border rounded px-3 py-2">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-gray-700 mb-1">入学年度</label>
+                                        <select class="child-enrollment-year w-full border rounded px-3 py-2">
+                                            <option value="">選択してください</option>
+                                            <!-- 年度は動的に生成 -->
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-gray-700 mb-1">学年</label>
+                                        <input type="text" class="child-grade w-full border rounded px-3 py-2" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="add-child-btn" class="text-blue-600 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            子供を追加
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-end gap-2">
+                        <button type="button" id="member-cancel" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">キャンセル</button>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">保存</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- メンバー一覧 -->
+            <div id="members-list" class="space-y-4">
+                <!-- サンプルデータ -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // データストレージ
+        const storage = {
+            announcements: [],
+            events: [],
+            members: [],
+            teamName: "松川村少年野球愛好会",
+            teamPhoto: null,
+            
+            // ローカルストレージからデータを読み込む
+            load() {
+                const data = localStorage.getItem('baseballClubData');
+                if (data) {
+                    const parsedData = JSON.parse(data);
+                    this.announcements = parsedData.announcements || [];
+                    this.events = parsedData.events || [];
+                    this.members = parsedData.members || [];
+                    this.teamName = parsedData.teamName || "松川村少年野球愛好会";
+                    this.teamPhoto = parsedData.teamPhoto || null;
+                }
+            },
+            
+            // ローカルストレージにデータを保存する
+            save() {
+                const data = {
+                    announcements: this.announcements,
+                    events: this.events,
+                    members: this.members,
+                    teamName: this.teamName,
+                    teamPhoto: this.teamPhoto
+                };
+                localStorage.setItem('baseballClubData', JSON.stringify(data));
+            }
+        };
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            // データの読み込み
+            storage.load();
+            
+            // チーム名の表示
+            document.getElementById('team-name-display').textContent = storage.teamName;
+            document.getElementById('team-name-input').value = storage.teamName;
+            
+            // チーム写真の表示
+            if (storage.teamPhoto) {
+                document.getElementById('team-photo').src = storage.teamPhoto;
+                document.getElementById('team-photo').classList.remove('hidden');
+                document.getElementById('photo-placeholder').classList.add('hidden');
+            }
+            
+            // 入学年度の選択肢を生成
+            populateEnrollmentYears();
+            
+            // データの表示
+            renderAnnouncements();
+            renderEvents();
+            renderMembers();
+            updateParentSelections();
+            
+            // タブ切り替え
+            setupTabs();
+            
+            // イベントリスナーの設定
+            setupEventListeners();
+        });
+
+        // タブ切り替え
+        function setupTabs() {
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tabId = btn.getAttribute('data-tab');
+                    
+                    // タブボタンのアクティブ状態を切り替え
+                    tabBtns.forEach(b => b.classList.remove('tab-active'));
+                    btn.classList.add('tab-active');
+                    
+                    // タブコンテンツの表示/非表示を切り替え
+                    tabContents.forEach(content => {
+                        if (content.id === `${tabId}-tab`) {
+                            content.classList.remove('hidden');
+                        } else {
+                            content.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // イベントリスナーの設定
+        function setupEventListeners() {
+            // チーム名編集
+            document.getElementById('edit-name-btn').addEventListener('click', () => {
+                document.getElementById('team-name-display').classList.add('hidden');
+                document.getElementById('edit-name-btn').classList.add('hidden');
+                document.getElementById('team-name-edit').classList.remove('hidden');
+            });
+            
+            document.getElementById('save-name-btn').addEventListener('click', () => {
+                const newName = document.getElementById('team-name-input').value.trim();
+                if (newName) {
+                    storage.teamName = newName;
+                    document.getElementById('team-name-display').textContent = newName;
+                    storage.save();
+                }
+                
+                document.getElementById('team-name-display').classList.remove('hidden');
+                document.getElementById('edit-name-btn').classList.remove('hidden');
+                document.getElementById('team-name-edit').classList.add('hidden');
+            });
+            
+            document.getElementById('cancel-name-btn').addEventListener('click', () => {
+                document.getElementById('team-name-input').value = storage.teamName;
+                document.getElementById('team-name-display').classList.remove('hidden');
+                document.getElementById('edit-name-btn').classList.remove('hidden');
+                document.getElementById('team-name-edit').classList.add('hidden');
+            });
+            
+            // チーム写真アップロード
+            document.getElementById('photo-upload').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        storage.teamPhoto = event.target.result;
+                        document.getElementById('team-photo').src = event.target.result;
+                        document.getElementById('team-photo').classList.remove('hidden');
+                        document.getElementById('photo-placeholder').classList.add('hidden');
+                        storage.save();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 連絡事項
+            document.getElementById('new-announcement-btn').addEventListener('click', () => {
+                resetAnnouncementForm();
+                document.getElementById('announcement-form').classList.remove('hidden');
+            });
+            
+            document.getElementById('announcement-cancel').addEventListener('click', () => {
+                document.getElementById('announcement-form').classList.add('hidden');
+            });
+            
+            document.getElementById('announcement-create-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveAnnouncement();
+            });
+            
+            document.getElementById('announcement-file').addEventListener('change', (e) => {
+                handleFileSelection(e, 'announcement-file-preview', 'announcement-file-name');
+            });
+            
+            document.getElementById('announcement-file-remove').addEventListener('click', () => {
+                resetFileInput('announcement-file', 'announcement-file-preview');
+            });
+            
+            // イベント
+            document.getElementById('new-event-btn').addEventListener('click', () => {
+                resetEventForm();
+                document.getElementById('event-form').classList.remove('hidden');
+            });
+            
+            document.getElementById('event-cancel').addEventListener('click', () => {
+                document.getElementById('event-form').classList.add('hidden');
+            });
+            
+            document.getElementById('event-create-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveEvent();
+            });
+            
+            document.getElementById('event-type').addEventListener('change', updateEventForm);
+            
+            document.getElementById('event-file').addEventListener('change', (e) => {
+                handleFileSelection(e, 'event-file-preview', 'event-file-name');
+            });
+            
+            document.getElementById('event-file-remove').addEventListener('click', () => {
+                resetFileInput('event-file', 'event-file-preview');
+            });
+            
+            // 練習複製
+            document.getElementById('practice-copy-btn').addEventListener('click', () => {
+                document.getElementById('practice-copy-modal').classList.remove('hidden');
+                // 日付入力欄を1つ用意
+                document.getElementById('copy-dates-container').innerHTML = `
+                    <div class="flex items-center">
+                        <input type="checkbox" class="copy-date-checkbox mr-2" checked>
+                        <input type="date" class="copy-date border rounded px-3 py-1">
+                    </div>
+                `;
+            });
+            
+            document.getElementById('add-copy-date').addEventListener('click', () => {
+                const container = document.getElementById('copy-dates-container');
+                const newDateEntry = document.createElement('div');
+                newDateEntry.className = 'flex items-center';
+                newDateEntry.innerHTML = `
+                    <input type="checkbox" class="copy-date-checkbox mr-2" checked>
+                    <input type="date" class="copy-date border rounded px-3 py-1">
+                `;
+                container.appendChild(newDateEntry);
+            });
+            
+            document.getElementById('copy-cancel').addEventListener('click', () => {
+                document.getElementById('practice-copy-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('copy-confirm').addEventListener('click', () => {
+                copyPracticeToSelectedDates();
+                document.getElementById('practice-copy-modal').classList.add('hidden');
+            });
+            
+            document.getElementById('attendance-close').addEventListener('click', () => {
+                document.getElementById('attendance-modal').classList.add('hidden');
+            });
+            
+            // メンバー
+            document.getElementById('new-member-btn').addEventListener('click', () => {
+                resetMemberForm();
+                document.getElementById('member-form').classList.remove('hidden');
+            });
+            
+            document.getElementById('member-cancel').addEventListener('click', () => {
+                document.getElementById('member-form').classList.add('hidden');
+            });
+            
+            document.getElementById('member-create-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveMember();
+            });
+            
+            document.getElementById('add-child-btn').addEventListener('click', addChildEntry);
+            
+            // 入学年度が変更されたときに学年を自動計算
+            document.addEventListener('change', (e) => {
+                if (e.target.classList.contains('child-enrollment-year')) {
+                    updateGrade(e.target);
+                }
+            });
+        }
+
+        // 連絡事項の表示
+        function renderAnnouncements() {
+            const container = document.getElementById('announcements-list');
+            container.innerHTML = '';
+            
+            if (storage.announcements.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">連絡事項はありません</p>';
+                return;
+            }
+            
+            // 日付の新しい順にソート
+            const sortedAnnouncements = [...storage.announcements].sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            sortedAnnouncements.forEach(announcement => {
+                const element = document.createElement('div');
+                element.className = 'bg-white rounded-lg shadow-md p-6';
+                
+                let fileHtml = '';
+                if (announcement.file) {
+                    const fileName = announcement.fileName || '添付ファイル';
+                    fileHtml = `
+                        <div class="mt-4 p-2 bg-gray-50 rounded flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                            <a href="${announcement.file}" download="${fileName}" class="text-blue-600 hover:underline">${fileName}</a>
+                        </div>
+                    `;
+                }
+                
+                element.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">${announcement.title}</h3>
+                            <p class="text-gray-600 mb-2">${formatDate(announcement.date)} - ${announcement.author}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="edit-announcement text-blue-600 hover:text-blue-800" data-id="${announcement.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                            <button class="delete-announcement text-red-600 hover:text-red-800" data-id="${announcement.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 whitespace-pre-wrap">${announcement.content}</div>
+                    ${fileHtml}
+                `;
+                
+                container.appendChild(element);
+                
+                // 編集ボタンのイベントリスナー
+                element.querySelector('.edit-announcement').addEventListener('click', () => {
+                    editAnnouncement(announcement.id);
+                });
+                
+                // 削除ボタンのイベントリスナー
+                element.querySelector('.delete-announcement').addEventListener('click', () => {
+                    if (confirm('この連絡事項を削除してもよろしいですか？')) {
+                        deleteAnnouncement(announcement.id);
+                    }
+                });
+            });
+        }
+
+        // イベントの表示
+        function renderEvents() {
+            const container = document.getElementById('events-list');
+            container.innerHTML = '';
+            
+            if (storage.events.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">イベントはありません</p>';
+                return;
+            }
+            
+            // 日付の新しい順にソート
+            const sortedEvents = [...storage.events].sort((a, b) => {
+                return new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time);
+            });
+            
+            sortedEvents.forEach(event => {
+                const element = document.createElement('div');
+                element.className = `event-${event.type} rounded-lg shadow-md p-6`;
+                
+                let typeLabel = '';
+                switch(event.type) {
+                    case 'practice':
+                        typeLabel = '練習';
+                        break;
+                    case 'game':
+                        typeLabel = '試合';
+                        break;
+                    case 'recreation':
+                        typeLabel = 'レクリエーション';
+                        break;
+                }
+                
+                let titleHtml = event.type === 'practice' ? 
+                    `<h3 class="text-xl font-bold mb-1">${typeLabel}</h3>` : 
+                    `<h3 class="text-xl font-bold mb-1">${event.title}</h3>`;
+                
+                let itemsHtml = '';
+                if (event.items) {
+                    itemsHtml = `
+                        <div class="mt-3">
+                            <h4 class="font-bold">持ち物</h4>
+                            <p class="whitespace-pre-wrap">${event.items}</p>
+                        </div>
+                    `;
+                }
+                
+                let fileHtml = '';
+                if (event.file) {
+                    const fileName = event.fileName || '添付ファイル';
+                    fileHtml = `
+                        <div class="mt-3 p-2 bg-gray-50 rounded flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                            <a href="${event.file}" download="${fileName}" class="text-blue-600 hover:underline">${fileName}</a>
+                        </div>
+                    `;
+                }
+                
+                let attendanceHtml = '';
+                if (event.type === 'game') {
+                    let attendanceCount = { yes: 0, no: 0, pending: 0 };
+                    
+                    if (event.attendance) {
+                        Object.values(event.attendance).forEach(status => {
+                            if (status === 'yes') attendanceCount.yes++;
+                            else if (status === 'no') attendanceCount.no++;
+                            else attendanceCount.pending++;
+                        });
+                    }
+                    
+                    attendanceHtml = `
+                        <div class="mt-4 border-t pt-3">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold">出欠確認</h4>
+                                <div class="text-sm">
+                                    <span class="text-green-600 font-bold">${attendanceCount.yes}</span> 参加 / 
+                                    <span class="text-red-600 font-bold">${attendanceCount.no}</span> 不参加 / 
+                                    <span class="text-gray-600 font-bold">${attendanceCount.pending}</span> 未回答
+                                </div>
+                            </div>
+                            <button class="attendance-btn mt-2 bg-blue-100 text-blue-800 px-3 py-1 rounded hover:bg-blue-200" data-id="${event.id}">
+                                出欠を確認/登録
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                element.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            ${titleHtml}
+                            <p class="text-gray-600">${formatDate(event.date)} ${formatTime(event.time)}</p>
+                            <p class="font-medium mt-1">場所: ${event.location}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="edit-event text-blue-600 hover:text-blue-800" data-id="${event.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                            <button class="delete-event text-red-600 hover:text-red-800" data-id="${event.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    ${event.comment ? `<div class="mt-3 whitespace-pre-wrap">${event.comment}</div>` : ''}
+                    ${itemsHtml}
+                    ${fileHtml}
+                    ${attendanceHtml}
+                `;
+                
+                container.appendChild(element);
+                
+                // 編集ボタンのイベントリスナー
+                element.querySelector('.edit-event').addEventListener('click', () => {
+                    editEvent(event.id);
+                });
+                
+                // 削除ボタンのイベントリスナー
+                element.querySelector('.delete-event').addEventListener('click', () => {
+                    if (confirm('このイベントを削除してもよろしいですか？')) {
+                        deleteEvent(event.id);
+                    }
+                });
+                
+                // 出欠確認ボタンのイベントリスナー
+                if (event.type === 'game') {
+                    element.querySelector('.attendance-btn').addEventListener('click', () => {
+                        showAttendanceModal(event);
+                    });
+                }
+            });
+        }
+
+        // メンバーの表示
+        function renderMembers() {
+            const container = document.getElementById('members-list');
+            container.innerHTML = '';
+            
+            if (storage.members.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">メンバーはいません</p>';
+                return;
+            }
+            
+            storage.members.forEach(member => {
+                const element = document.createElement('div');
+                element.className = 'bg-white rounded-lg shadow-md p-6';
+                
+                let childrenHtml = '';
+                if (member.children && member.children.length > 0) {
+                    childrenHtml = '<div class="mt-4"><h4 class="font-bold mb-2">子供</h4><ul class="space-y-2">';
+                    
+                    member.children.forEach(child => {
+                        if (child.name) {
+                            const grade = calculateGrade(child.enrollmentYear);
+                            childrenHtml += `
+                                <li class="flex items-center">
+                                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mr-2">${grade}年生</span>
+                                    <span>${child.name}${child.kana ? ` (${child.kana})` : ''}</span>
+                                </li>
+                            `;
+                        }
+                    });
+                    
+                    childrenHtml += '</ul></div>';
+                }
+                
+                element.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">家族ID: ${member.id}</h3>
+                            <p>保護者: ${member.parent1Name}${member.parent2Name ? ` / ${member.parent2Name}` : ''}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="edit-member text-blue-600 hover:text-blue-800" data-id="${member.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                </svg>
+                            </button>
+                            <button class="delete-member text-red-600 hover:text-red-800" data-id="${member.id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    ${childrenHtml}
+                `;
+                
+                container.appendChild(element);
+                
+                // 編集ボタンのイベントリスナー
+                element.querySelector('.edit-member').addEventListener('click', () => {
+                    editMember(member.id);
+                });
+                
+                // 削除ボタンのイベントリスナー
+                element.querySelector('.delete-member').addEventListener('click', () => {
+                    if (confirm('このメンバーを削除してもよろしいですか？')) {
+                        deleteMember(member.id);
+                    }
+                });
+            });
+        }
+
+        // 連絡事項の保存
+        function saveAnnouncement() {
+            const id = document.getElementById('announcement-id').value || generateId();
+            const title = document.getElementById('announcement-title').value;
+            const date = document.getElementById('announcement-date').value;
+            const author = document.getElementById('announcement-author').value;
+            const content = document.getElementById('announcement-content').value;
+            
+            // ファイルの処理
+            const fileInput = document.getElementById('announcement-file');
+            let file = null;
+            let fileName = null;
+            
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    file = event.target.result;
+                    fileName = fileInput.files[0].name;
+                    
+                    completeAnnouncementSave(id, title, date, author, content, file, fileName);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // 既存のファイルを保持する場合
+                const existingAnnouncement = storage.announcements.find(a => a.id === id);
+                if (existingAnnouncement) {
+                    file = existingAnnouncement.file;
+                    fileName = existingAnnouncement.fileName;
+                }
+                
+                completeAnnouncementSave(id, title, date, author, content, file, fileName);
+            }
+        }
+
+        function completeAnnouncementSave(id, title, date, author, content, file, fileName) {
+            const announcement = {
+                id,
+                title,
+                date,
+                author,
+                content,
+                file,
+                fileName
+            };
+            
+            const index = storage.announcements.findIndex(a => a.id === id);
+            if (index !== -1) {
+                storage.announcements[index] = announcement;
+            } else {
+                storage.announcements.push(announcement);
+            }
+            
+            storage.save();
+            renderAnnouncements();
+            document.getElementById('announcement-form').classList.add('hidden');
+        }
+
+        // イベントの保存
+        function saveEvent() {
+            const id = document.getElementById('event-id').value || generateId();
+            const type = document.getElementById('event-type').value;
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const location = document.getElementById('event-location').value;
+            const comment = document.getElementById('event-comment').value;
+            
+            let title = '';
+            let items = '';
+            
+            if (type !== 'practice') {
+                title = document.getElementById('event-title').value;
+                items = document.getElementById('event-items').value;
+            }
+            
+            // ファイルの処理
+            const fileInput = document.getElementById('event-file');
+            let file = null;
+            let fileName = null;
+            
+            if (fileInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    file = event.target.result;
+                    fileName = fileInput.files[0].name;
+                    
+                    completeEventSave(id, type, title, date, time, location, comment, items, file, fileName);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // 既存のファイルを保持する場合
+                const existingEvent = storage.events.find(e => e.id === id);
+                if (existingEvent) {
+                    file = existingEvent.file;
+                    fileName = existingEvent.fileName;
+                }
+                
+                completeEventSave(id, type, title, date, time, location, comment, items, file, fileName);
+            }
+        }
+
+        function completeEventSave(id, type, title, date, time, location, comment, items, file, fileName) {
+            const event = {
+                id,
+                type,
+                title,
+                date,
+                time,
+                location,
+                comment,
+                items,
+                file,
+                fileName
+            };
+            
+            // 既存の出欠情報を保持
+            const existingEvent = storage.events.find(e => e.id === id);
+            if (existingEvent && existingEvent.attendance) {
+                event.attendance = existingEvent.attendance;
+            }
+            
+            const index = storage.events.findIndex(e => e.id === id);
+            if (index !== -1) {
+                storage.events[index] = event;
+            } else {
+                storage.events.push(event);
+            }
+            
+            storage.save();
+            renderEvents();
+            document.getElementById('event-form').classList.add('hidden');
+        }
+
+        // メンバーの保存
+        function saveMember() {
+            const id = document.getElementById('member-id').value || generateId();
+            const parent1Name = document.getElementById('parent1-name').value;
+            const parent2Name = document.getElementById('parent2-name').value;
+            
+            // 子供情報の収集
+            const childEntries = document.querySelectorAll('.child-entry');
+            const children = [];
+            
+            childEntries.forEach(entry => {
+                const name = entry.querySelector('.child-name').value;
+                const kana = entry.querySelector('.child-kana').value;
+                const enrollmentYear = entry.querySelector('.child-enrollment-year').value;
+                
+                // 名前が入力されている場合のみ追加
+                if (name || kana || enrollmentYear) {
+                    children.push({
+                        name,
+                        kana,
+                        enrollmentYear
+                    });
+                }
+            });
+            
+            const member = {
+                id,
+                parent1Name,
+                parent2Name,
+                children
+            };
+            
+            const index = storage.members.findIndex(m => m.id === id);
+            if (index !== -1) {
+                storage.members[index] = member;
+            } else {
+                storage.members.push(member);
+            }
+            
+            storage.save();
+            renderMembers();
+            updateParentSelections();
+            document.getElementById('member-form').classList.add('hidden');
+        }
+
+        // 連絡事項の編集
+        function editAnnouncement(id) {
+            const announcement = storage.announcements.find(a => a.id === id);
+            if (!announcement) return;
+            
+            document.getElementById('announcement-id').value = announcement.id;
+            document.getElementById('announcement-title').value = announcement.title;
+            document.getElementById('announcement-date').value = announcement.date;
+            document.getElementById('announcement-author').value = announcement.author;
+            document.getElementById('announcement-content').value = announcement.content;
+            
+            // ファイルがある場合はプレビューを表示
+            if (announcement.file) {
+                document.getElementById('announcement-file-name').textContent = announcement.fileName || '添付ファイル';
+                document.getElementById('announcement-file-preview').classList.remove('hidden');
+            } else {
+                document.getElementById('announcement-file-preview').classList.add('hidden');
+            }
+            
+            document.getElementById('announcement-form').classList.remove('hidden');
+        }
+
+        // イベントの編集
+        function editEvent(id) {
+            const event = storage.events.find(e => e.id === id);
+            if (!event) return;
+            
+            document.getElementById('event-id').value = event.id;
+            document.getElementById('event-type').value = event.type;
+            document.getElementById('event-date').value = event.date;
+            document.getElementById('event-time').value = event.time;
+            document.getElementById('event-location').value = event.location;
+            document.getElementById('event-comment').value = event.comment || '';
+            
+            updateEventForm();
+            
+            if (event.type !== 'practice') {
+                document.getElementById('event-title').value = event.title || '';
+                document.getElementById('event-items').value = event.items || '';
+            }
+            
+            // ファイルがある場合はプレビューを表示
+            if (event.file) {
+                document.getElementById('event-file-name').textContent = event.fileName || '添付ファイル';
+                document.getElementById('event-file-preview').classList.remove('hidden');
+            } else {
+                document.getElementById('event-file-preview').classList.add('hidden');
+            }
+            
+            document.getElementById('event-form').classList.remove('hidden');
+        }
+
+        // メンバーの編集
+        function editMember(id) {
+            const member = storage.members.find(m => m.id === id);
+            if (!member) return;
+            
+            document.getElementById('member-id').value = member.id;
+            document.getElementById('parent1-name').value = member.parent1Name;
+            document.getElementById('parent2-name').value = member.parent2Name || '';
+            
+            // 子供情報のフォームをリセット
+            document.getElementById('children-container').innerHTML = '';
+            
+            // 子供情報を追加
+            if (member.children && member.children.length > 0) {
+                member.children.forEach(child => {
+                    addChildEntry(child);
+                });
+            } else {
+                addChildEntry();
+            }
+            
+            document.getElementById('member-form').classList.remove('hidden');
+        }
+
+        // 連絡事項の削除
+        function deleteAnnouncement(id) {
+            storage.announcements = storage.announcements.filter(a => a.id !== id);
+            storage.save();
+            renderAnnouncements();
+        }
+
+        // イベントの削除
+        function deleteEvent(id) {
+            storage.events = storage.events.filter(e => e.id !== id);
+            storage.save();
+            renderEvents();
+        }
+
+        // メンバーの削除
+        function deleteMember(id) {
+            storage.members = storage.members.filter(m => m.id !== id);
+            storage.save();
+            renderMembers();
+            updateParentSelections();
+        }
+
+        // 連絡事項フォームのリセット
+        function resetAnnouncementForm() {
+            document.getElementById('announcement-id').value = '';
+            document.getElementById('announcement-title').value = '';
+            document.getElementById('announcement-date').value = getCurrentDate();
+            document.getElementById('announcement-author').value = '';
+            document.getElementById('announcement-content').value = '';
+            resetFileInput('announcement-file', 'announcement-file-preview');
+        }
+
+        // イベントフォームのリセット
+        function resetEventForm() {
+            document.getElementById('event-id').value = '';
+            document.getElementById('event-type').value = 'practice';
+            document.getElementById('event-title').value = '';
+            document.getElementById('event-date').value = getCurrentDate();
+            document.getElementById('event-time').value = '';
+            document.getElementById('event-location').value = '';
+            document.getElementById('event-items').value = '';
+            document.getElementById('event-comment').value = '';
+            resetFileInput('event-file', 'event-file-preview');
+            updateEventForm();
+        }
+
+        // メンバーフォームのリセット
+        function resetMemberForm() {
+            document.getElementById('member-id').value = '';
+            document.getElementById('parent1-name').value = '';
+            document.getElementById('parent2-name').value = '';
+            document.getElementById('children-container').innerHTML = '';
+            addChildEntry();
+        }
+
+        // イベントフォームの表示更新
+        function updateEventForm() {
+            const type = document.getElementById('event-type').value;
+            
+            if (type === 'practice') {
+                document.getElementById('event-title-container').classList.add('hidden');
+                document.getElementById('event-items-container').classList.add('hidden');
+                document.getElementById('event-file-container').classList.add('hidden');
+                document.getElementById('practice-copy-container').classList.remove('hidden');
+            } else {
+                document.getElementById('event-title-container').classList.remove('hidden');
+                document.getElementById('event-items-container').classList.remove('hidden');
+                document.getElementById('event-file-container').classList.remove('hidden');
+                document.getElementById('practice-copy-container').classList.add('hidden');
+            }
+        }
+
+        // 子供情報の入力欄を追加
+        function addChildEntry(childData = null) {
+            const container = document.getElementById('children-container');
+            const childEntry = document.createElement('div');
+            childEntry.className = 'child-entry border rounded-lg p-4 mb-4';
+            
+            childEntry.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="font-bold">子供情報</h4>
+                    <button type="button" class="remove-child text-red-600 hover:text-red-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                    <div>
+                        <label class="block text-gray-700 mb-1">名前</label>
+                        <input type="text" class="child-name w-full border rounded px-3 py-2" value="${childData?.name || ''}">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-1">ふりがな</label>
+                        <input type="text" class="child-kana w-full border rounded px-3 py-2" value="${childData?.kana || ''}">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 mb-1">入学年度</label>
+                        <select class="child-enrollment-year w-full border rounded px-3 py-2">
+                            <option value="">選択してください</option>
+                            <!-- 年度は動的に生成 -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-1">学年</label>
+                        <input type="text" class="child-grade w-full border rounded px-3 py-2" readonly>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(childEntry);
+            
+            // 入学年度の選択肢を生成
+            const enrollmentYearSelect = childEntry.querySelector('.child-enrollment-year');
+            populateEnrollmentYearOptions(enrollmentYearSelect);
+            
+            // 既存データがある場合は選択
+            if (childData && childData.enrollmentYear) {
+                enrollmentYearSelect.value = childData.enrollmentYear;
+                updateGrade(enrollmentYearSelect);
+            }
+            
+            // 削除ボタンのイベントリスナー
+            childEntry.querySelector('.remove-child').addEventListener('click', () => {
+                if (document.querySelectorAll('.child-entry').length > 1) {
+                    childEntry.remove();
+                } else {
+                    alert('少なくとも1人の子供情報が必要です');
+                }
+            });
+            
+            // 入学年度が変更されたときに学年を自動計算
+            enrollmentYearSelect.addEventListener('change', () => {
+                updateGrade(enrollmentYearSelect);
+            });
+        }
+
+        // 入学年度の選択肢を生成
+        function populateEnrollmentYears() {
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 12; // 小学校6年生まで考慮
+            
+            // 入学年度の選択肢を生成する関数
+            window.populateEnrollmentYearOptions = function(select) {
+                select.innerHTML = '<option value="">選択してください</option>';
+                
+                for (let year = currentYear; year >= startYear; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = `${year}年度`;
+                    select.appendChild(option);
+                }
+            };
+        }
+
+        // 学年を計算して表示
+        function updateGrade(enrollmentYearSelect) {
+            const enrollmentYear = parseInt(enrollmentYearSelect.value);
+            const gradeInput = enrollmentYearSelect.closest('.child-entry').querySelector('.child-grade');
+            
+            if (enrollmentYear) {
+                const grade = calculateGrade(enrollmentYear);
+                gradeInput.value = `${grade}年生`;
+            } else {
+                gradeInput.value = '';
+            }
+        }
+
+        // 学年を計算
+        function calculateGrade(enrollmentYear) {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1; // 0-indexed
+            
+            // 4月から新学年
+            const academicYear = currentMonth >= 4 ? currentYear : currentYear - 1;
+            const grade = academicYear - enrollmentYear + 1;
+            
+            return grade > 0 ? grade : 1;
+        }
+
+        // 保護者選択肢の更新
+        function updateParentSelections() {
+            const authorSelect = document.getElementById('announcement-author');
+            authorSelect.innerHTML = '<option value="">選択してください</option>';
+            
+            storage.members.forEach(member => {
+                if (member.parent1Name) {
+                    const option = document.createElement('option');
+                    option.value = member.parent1Name;
+                    option.textContent = member.parent1Name;
+                    authorSelect.appendChild(option);
+                }
+                
+                if (member.parent2Name) {
+                    const option = document.createElement('option');
+                    option.value = member.parent2Name;
+                    option.textContent = member.parent2Name;
+                    authorSelect.appendChild(option);
+                }
+            });
+        }
+
+        // 練習を複数日に複製
+        function copyPracticeToSelectedDates() {
+            const eventId = document.getElementById('event-id').value;
+            const eventType = document.getElementById('event-type').value;
+            const eventTime = document.getElementById('event-time').value;
+            const eventLocation = document.getElementById('event-location').value;
+            const eventComment = document.getElementById('event-comment').value;
+            
+            if (eventType !== 'practice') return;
+            
+            const checkboxes = document.querySelectorAll('.copy-date-checkbox:checked');
+            const dates = Array.from(checkboxes).map(checkbox => {
+                const dateInput = checkbox.nextElementSibling;
+                return dateInput.value;
+            }).filter(date => date);
+            
+            dates.forEach(date => {
+                const newEvent = {
+                    id: generateId(),
+                    type: 'practice',
+                    date,
+                    time: eventTime,
+                    location: eventLocation,
+                    comment: eventComment
+                };
+                
+                storage.events.push(newEvent);
+            });
+            
+            storage.save();
+            renderEvents();
+        }
+
+        // 出欠確認モーダルを表示
+        function showAttendanceModal(event) {
+            const modal = document.getElementById('attendance-modal');
+            const titleElement = document.getElementById('attendance-event-title');
+            const dateElement = document.getElementById('attendance-event-date');
+            const attendanceList = document.getElementById('attendance-list');
+            
+            titleElement.textContent = event.title;
+            dateElement.textContent = `日時: ${formatDate(event.date)} ${formatTime(event.time)}`;
+            
+            // 出欠リストを生成
+            attendanceList.innerHTML = '';
+            
+            // 子供のいるメンバーを抽出
+            const membersWithChildren = storage.members.filter(member => 
+                member.children && member.children.some(child => child.name)
+            );
+            
+            // 出欠のカウント
+            let countYes = 0;
+            let countNo = 0;
+            let countPending = 0;
+            
+            membersWithChildren.forEach(member => {
+                member.children.forEach(child => {
+                    if (!child.name) return;
+                    
+                    const childId = `${member.id}-${child.name}`;
+                    const status = event.attendance && event.attendance[childId] ? event.attendance[childId] : 'pending';
+                    
+                    if (status === 'yes') countYes++;
+                    else if (status === 'no') countNo++;
+                    else countPending++;
+                    
+                    const row = document.createElement('tr');
+                    row.className = 'border-t';
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${child.name}</td>
+                        <td class="py-2 px-4">
+                            <div class="flex justify-center space-x-2">
+                                <button class="attendance-option ${status === 'yes' ? 'bg-green-500 text-white' : 'bg-gray-200'} px-3 py-1 rounded" data-status="yes" data-child-id="${childId}">参加</button>
+                                <button class="attendance-option ${status === 'no' ? 'bg-red-500 text-white' : 'bg-gray-200'} px-3 py-1 rounded" data-status="no" data-child-id="${childId}">不参加</button>
+                            </div>
+                        </td>
+                    `;
+                    
+                    attendanceList.appendChild(row);
+                    
+                    // 出欠ボタンのイベントリスナー
+                    const buttons = row.querySelectorAll('.attendance-option');
+                    buttons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            const childId = button.getAttribute('data-child-id');
+                            const status = button.getAttribute('data-status');
+                            
+                            // 出欠情報を更新
+                            if (!event.attendance) event.attendance = {};
+                            
+                            // 同じステータスをクリックした場合はリセット
+                            if (event.attendance[childId] === status) {
+                                delete event.attendance[childId];
+                                buttons.forEach(b => b.classList.remove('bg-green-500', 'bg-red-500', 'text-white'));
+                                buttons.forEach(b => b.classList.add('bg-gray-200'));
+                                
+                                // カウントを更新
+                                if (status === 'yes') countYes--;
+                                else if (status === 'no') countNo--;
+                                countPending++;
+                            } else {
+                                event.attendance[childId] = status;
+                                buttons.forEach(b => b.classList.remove('bg-green-500', 'bg-red-500', 'text-white'));
+                                buttons.forEach(b => b.classList.add('bg-gray-200'));
+                                button.classList.remove('bg-gray-200');
+                                
+                                // 以前のステータスに基づいてカウントを更新
+                                const prevStatus = event.attendance[childId];
+                                if (prevStatus === 'yes') countYes--;
+                                else if (prevStatus === 'no') countNo--;
+                                else countPending--;
+                                
+                                // 新しいステータスに基づいてカウントを更新
+                                if (status === 'yes') {
+                                    countYes++;
+                                    button.classList.add('bg-green-500', 'text-white');
+                                } else if (status === 'no') {
+                                    countNo++;
+                                    button.classList.add('bg-red-500', 'text-white');
+                                }
+                            }
+                            
+                            // カウント表示を更新
+                            document.getElementById('attendance-count-yes').textContent = countYes;
+                            document.getElementById('attendance-count-no').textContent = countNo;
+                            document.getElementById('attendance-count-pending').textContent = countPending;
+                            
+                            // データを保存
+                            storage.save();
+                            
+                            // イベント一覧を更新
+                            renderEvents();
+                        });
+                    });
+                });
+            });
+            
+            // カウント表示を更新
+            document.getElementById('attendance-count-yes').textContent = countYes;
+            document.getElementById('attendance-count-no').textContent = countNo;
+            document.getElementById('attendance-count-pending').textContent = countPending;
+            
+            modal.classList.remove('hidden');
+        }
+
+        // ファイル選択の処理
+        function handleFileSelection(event, previewId, nameId) {
+            const fileInput = event.target;
+            const filePreview = document.getElementById(previewId);
+            const fileName = document.getElementById(nameId);
+            
+            if (fileInput.files.length > 0) {
+                fileName.textContent = fileInput.files[0].name;
+                filePreview.classList.remove('hidden');
+            } else {
+                filePreview.classList.add('hidden');
+            }
+        }
+
+        // ファイル入力のリセット
+        function resetFileInput(inputId, previewId) {
+            document.getElementById(inputId).value = '';
+            document.getElementById(previewId).classList.add('hidden');
+        }
+
+        // ユーティリティ関数
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);```
